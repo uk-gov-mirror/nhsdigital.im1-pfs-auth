@@ -13,12 +13,12 @@ from app.api.domain.exception import (
     NotFoundError,
 )
 from app.api.domain.forward_request_model import ForwardRequest
-from app.api.domain.forward_response_model import Demographics
 from app.api.infrastructure.emis.client import EmisClient
 from app.api.infrastructure.emis.models import (
+    EffectiveServices,
+    Identifier,
     MedicalRecordPermissions,
     Patient,
-    Permissions,
     SessionResponse,
 )
 
@@ -139,39 +139,47 @@ def test_emis_client_transform_response(client: EmisClient) -> None:
         sessionId="SID_2qZ9yJpVxHq4N3b",
         endUserSessionId="SESS_mDq6nE2b8R7KQ0v",
         supplier="EMIS",
-        proxy=Demographics(firstName="Alex", surname="Taylor", title="Mr"),
-        patients=[
-            Patient(
-                firstName="Alex",
-                surname="Taylor",
-                title="Mr",
-                permissions=Permissions(
-                    appointmentsEnabled=True,
-                    demographicsUpdateEnabled=True,
-                    epsEnabled=True,
-                    medicalRecordEnabled=True,
-                    onlineTriageEnabled=False,
-                    practicePatientCommunicationEnabled=False,
-                    prescribingEnabled=True,
-                    recordSharingEnabled=False,
-                    recordViewAuditEnabled=True,
-                    medicalRecord=MedicalRecordPermissions(
-                        recordAccessScheme="DetailedCodedCareRecord",
-                        allergiesEnabled=True,
-                        consultationsEnabled=True,
-                        immunisationsEnabled=True,
-                        documentsEnabled=True,
-                        medicationEnabled=True,
-                        problemsEnabled=True,
-                        testResultsEnabled=True,
-                    ),
+        odsCode="some patient ods code",
+        user=Patient(
+            firstName="Alex",
+            surname="Taylor",
+            title="Mr",
+            dateOfBirth="1985-06-25",
+            userPatientLinkToken="link_self_9aLw3G7kVQ",
+            patientIdentifiers=[Identifier(value="9434765919", type="NhsNumber")],
+            permissions=EffectiveServices(
+                appointmentsEnabled=True,
+                demographicsUpdateEnabled=True,
+                epsEnabled=True,
+                medicalRecordEnabled=True,
+                onlineTriageEnabled=False,
+                practicePatientCommunicationEnabled=False,
+                prescribingEnabled=True,
+                recordSharingEnabled=False,
+                recordViewAuditEnabled=True,
+                medicalRecord=MedicalRecordPermissions(
+                    recordAccessScheme="DetailedCodedCareRecord",
+                    allergiesEnabled=True,
+                    consultationsEnabled=True,
+                    immunisationsEnabled=True,
+                    documentsEnabled=True,
+                    medicationEnabled=True,
+                    problemsEnabled=True,
+                    testResultsEnabled=True,
                 ),
             ),
+        ),
+        patients=[
             Patient(
                 firstName="Jane",
                 surname="Doe",
                 title="Mrs",
-                permissions=Permissions(
+                dateOfBirth="1979-01-15",
+                userPatientLinkToken="link_proxy_jane_5QJw7r2m",
+                patientIdentifiers=[
+                    Identifier(value="2222222222", type="NhsNumber"),
+                ],
+                permissions=EffectiveServices(
                     appointmentsEnabled=False,
                     demographicsUpdateEnabled=True,
                     epsEnabled=False,
@@ -197,7 +205,12 @@ def test_emis_client_transform_response(client: EmisClient) -> None:
                 firstName="Ella",
                 surname="Taylor",
                 title="Ms",
-                permissions=Permissions(
+                dateOfBirth="2010-03-02",
+                userPatientLinkToken="link_proxy_ella_Z01r8yPa",
+                patientIdentifiers=[
+                    Identifier(value="3333333333", type="NhsNumber"),
+                ],
+                permissions=EffectiveServices(
                     appointmentsEnabled=True,
                     demographicsUpdateEnabled=True,
                     epsEnabled=False,
@@ -224,44 +237,56 @@ def test_emis_client_transform_response(client: EmisClient) -> None:
 
 
 @pytest.mark.parametrize(
-    "response",
+    ("response", "expected_error"),
     [
-        {},
-        {  # Missing UserPatientLints
-            "SessionId": "some session",
-            "FirstName": "someone's first name",
-            "Surname": "someone's surname",
-            "Title": "someone's title",
-        },
-        {  # Missing Proxy Demographic information
-            "SessionId": "some session",
-            "UserPatientLinks": [
-                {
-                    "FirstName": "someone's first name",
-                    "Surname": "someone's surname",
-                    "Title": "someone's title",
-                }
-            ],
-        },
-        {  # Missing Session Id
-            "FirstName": "someone's first name",
-            "Surname": "someone's surname",
-            "Title": "someone's title",
-            "UserPatientLinks": [
-                {
-                    "FirstName": "someone's first name",
-                    "Surname": "someone's surname",
-                    "Title": "someone's title",
-                }
-            ],
-        },
+        ({}, ValueError),
+        (
+            {  # Missing UserPatientLints
+                "SessionId": "some session",
+                "FirstName": "someone's first name",
+                "Surname": "someone's surname",
+                "Title": "someone's title",
+            },
+            ValueError,
+        ),
+        (
+            {  # Missing Proxy Demographic information
+                "SessionId": "some session",
+                "UserPatientLinks": [
+                    {
+                        "FirstName": "someone's first name",
+                        "Surname": "someone's surname",
+                        "Title": "someone's title",
+                        "AssociationType": "Self",
+                    }
+                ],
+            },
+            ValidationError,
+        ),
+        (
+            {  # Missing Session Id
+                "FirstName": "someone's first name",
+                "Surname": "someone's surname",
+                "Title": "someone's title",
+                "UserPatientLinks": [
+                    {
+                        "FirstName": "someone's first name",
+                        "Surname": "someone's surname",
+                        "Title": "someone's title",
+                        "AssociationType": "Self",
+                    }
+                ],
+            },
+            ValidationError,
+        ),
     ],
 )
-def test_emis_client_transform_response_raise_validation_error(
+def test_emis_client_transform_response_raise_error(
     response: dict,
+    expected_error: Exception,
     client: EmisClient,
 ) -> None:
     """Test the EmisClient transform_response function raises validation error."""
     # Act & Assert
-    with pytest.raises(ValidationError):
+    with pytest.raises(expected_error):
         client.transform_response(response)

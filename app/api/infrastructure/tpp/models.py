@@ -4,7 +4,11 @@ from uuid import uuid4
 from pydantic import BaseModel, ConfigDict
 from pydantic.alias_generators import to_camel
 
-from app.api.domain.forward_response_model import Demographics, ForwardResponse
+from app.api.domain.forward_response_model import (
+    Demographics,
+    ForwardResponse,
+    Permissions,
+)
 
 
 class Application(BaseModel):
@@ -102,7 +106,7 @@ class ServiceAccessStatusDescription(Enum):
     OTHER = "Other"
 
 
-class ServiceAccess(BaseModel):
+class ServiceAccess(Permissions):
     """Base Model for Service Access which holds data per permission."""
 
     model_config = ConfigDict(alias_generator=to_camel)
@@ -113,9 +117,13 @@ class ServiceAccess(BaseModel):
     status_description: ServiceAccessStatusDescription
 
 
-class Patient(Demographics):
-    """Base Model for Patient."""
+class Person(Demographics):
+    """Base Model for User and Patient."""
 
+    model_config = ConfigDict(alias_generator=to_camel)
+
+    patient_id: str | None  # Not necessary for the user in cross practice proxy roles
+    patient_identifiers: list[Identifier]
     permissions: list[ServiceAccess]
 
 
@@ -124,4 +132,6 @@ class SessionResponse(ForwardResponse):
 
     model_config = ConfigDict(alias_generator=to_camel)
 
-    patients: list[Patient]
+    online_user_id: str
+    user: Person
+    patients: list[Person]

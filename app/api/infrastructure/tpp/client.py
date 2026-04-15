@@ -10,11 +10,11 @@ from app.api.domain.exception import (
     InvalidValueError,
     NotFoundError,
 )
-from app.api.domain.forward_response_model import Demographics, ForwardResponse
+from app.api.domain.forward_response_model import ForwardResponse
 from app.api.infrastructure.tpp.models import (
     Application,
     Identifier,
-    Patient,
+    Person,
     ServiceAccess,
     ServiceAccessDescription,
     ServiceAccessStatus,
@@ -99,15 +99,26 @@ class TPPClient(BaseClient):
             ForwardResponse: Homogenised response with other clients
         """
         response = response.get("CreateSessionReply", {})
-        proxy_link = response.get("User", {})
-        proxy_person = proxy_link.get("Person", {})
+        user_link = response.get("User", {})
+        user_person = user_link.get("Person", {})
+
         return SessionResponse(
             sessionId=response.get("@suid"),
             supplier=self.supplier,
-            proxy=Demographics(
-                firstName=proxy_person.get("PersonName", {}).get("@firstName"),
-                surname=proxy_person.get("PersonName", {}).get("@surname"),
-                title=proxy_person.get("PersonName", {}).get("@title"),
+            odsCode=self.request.patient_ods_code,
+            onlineUserId=user_link.get("@onlineUserId"),
+            user=Person(
+                firstName=user_person.get("PersonName", {}).get("@firstName"),
+                surname=user_person.get("PersonName", {}).get("@surname"),
+                title=user_person.get("PersonName", {}).get("@title"),
+                dateOfBirth=user_person.get("@dateOfBirth"),
+                patientId=user_person.get("@patientId"),
+                patientIdentifiers=self._parse_identifiers(
+                    user_person.get("NationalIdentifiers", [])
+                ),
+                permissions=self._parse_permissions(
+                    user_person.get("EffectiveServiceAccess", [])
+                ),
             ),
             patients=self._parse_patients(response),
         )
@@ -124,7 +135,7 @@ class TPPClient(BaseClient):
             mocked_response = f.read()
         return xmltodict.parse(mocked_response)
 
-    def _parse_patients(self, data: dict) -> list[Patient]:
+    def _parse_patients(self, data: dict) -> list[Person]:
         """Parsing raw data from Client into structual model.
 
         Args:
@@ -143,20 +154,37 @@ class TPPClient(BaseClient):
         parsed_patients = []
         for patient in patient_links:
             person = patient["Person"]
-            raw_permissions = person.get("EffectiveServiceAccess", []).get(
-                "ServiceAccess", []
-            )
+            raw_permissions = person.get("EffectiveServiceAccess", [])
             parsed_patients.append(
-                Patient(
+                Person(
                     firstName=person.get("PersonName", {}).get("@firstName"),
                     surname=person.get("PersonName", {}).get("@surname"),
                     title=person.get("PersonName", {}).get("@title"),
+                    dateOfBirth=person.get("@dateOfBirth"),
+                    patientId=person.get("@patientId"),
+                    patientIdentifiers=self._parse_identifiers(
+                        person.get("NationalIdentifiers", [])
+                    ),
                     permissions=self._parse_permissions(raw_permissions),
                 )
             )
         return parsed_patients
 
-    def _parse_permissions(self, raw_permissions: dict) -> list[ServiceAccess]:
+    def _parse_permissions(self, raw_permissions: dict | list) -> list[ServiceAccess]:
+        if not raw_permissions:
+            return []
+        # xmltodict gives us {"ServiceAccess": {...}} for one element and
+        # {"ServiceAccess": [{...}, {...}]} for multiple — extract the inner value first
+        service_access = (
+            raw_permissions.get("ServiceAccess")
+            if isinstance(raw_permissions, dict)
+            else []
+        )
+        if not service_access:
+            return []
+        if isinstance(service_access, dict):
+            # Single <ServiceAccess> element — normalise to a list
+            service_access = [service_access]
         return [
             ServiceAccess(
                 description=ServiceAccessDescription(service["@description"]),
@@ -166,5 +194,28 @@ class TPPClient(BaseClient):
                     service["@statusDesc"]
                 ),
             )
-            for service in raw_permissions
+            for service in service_access
+        ]
+
+    def _parse_identifiers(self, raw_identifiers: dict | list) -> list[Identifier]:
+        if not raw_identifiers:
+            return []
+        # xmltodict gives us {"Identifier": {...}} for one element and
+        # {"Identifier": [{...}, {...}]} for multiple — extract the inner value first
+        identifiers = (
+            raw_identifiers.get("Identifier")
+            if isinstance(raw_identifiers, dict)
+            else []
+        )
+        if not identifiers:
+            return []
+        if isinstance(identifiers, dict):
+            # Single <Identifier> element — normalise to a list
+            identifiers = [identifiers]
+        return [
+            Identifier(
+                value=identifier.get("@value"),
+                type=identifier.get("@type"),
+            )
+            for identifier in identifiers
         ]

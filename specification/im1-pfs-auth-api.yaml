@@ -210,10 +210,11 @@ components:
     EMISResponseModel:
       required:
         - sessionId
-          endUserSessionId
-          supplier
-          proxy
-          patients
+        - endUserSessionId
+        - supplier
+        - odsCode
+        - user
+        - patients
       type: object
       properties:
         sessionId:
@@ -224,20 +225,24 @@ components:
         supplier:
           enum: [EMIS]
           type: string
-        proxy:
-          $ref: "#/components/schemas/DemographicsModel"
+        odsCode:
+          type: string
+        user:
+          $ref: "#/components/schemas/EMISPersonModel"
         patients:
           type: array
           items:
-            $ref: "#/components/schemas/EMISPatientModel"
+            $ref: "#/components/schemas/EMISPersonModel"
       additionalProperties: false
 
     TPPResponseModel:
       required:
         - sessionId
-          supplier
-          proxy
-          patients
+        - supplier
+        - odsCode
+        - onlineUserId
+        - user
+        - patients
       type: object
       properties:
         sessionId:
@@ -246,19 +251,24 @@ components:
         supplier:
           enum: [TPP]
           type: string
-        proxy:
-          $ref: "#/components/schemas/DemographicsModel"
+        odsCode:
+          type: string
+        onlineUserId:
+          type: string
+        user:
+          $ref: "#/components/schemas/TPPPersonModel"
         patients:
           type: array
           items:
-            $ref: "#/components/schemas/TPPPatientModel"
+            $ref: "#/components/schemas/TPPPersonModel"
       additionalProperties: false
 
     DemographicsModel:
       required:
         - firstName
-          surname
-          title
+        - surname
+        - title
+        - dateOfBirth
       type: object
       properties:
         firstName:
@@ -267,29 +277,50 @@ components:
           type: string
         title:
           type: string
+        dateOfBirth:
+          type: string
 
-    EMISPatientModel:
+    PatientIdentifierModel:
+      required:
+        - value
+        - type
+      type: object
+      properties:
+        value:
+          type: string
+        type:
+          type: string
+
+    EMISPersonModel:
       allOf:
         - $ref: "#/components/schemas/DemographicsModel"
         - required:
+            - userPatientLinkToken
+            - patientIdentifiers
             - permissions
           type: object
           properties:
+            userPatientLinkToken:
+              type: string
+            patientIdentifiers:
+              type: array
+              items:
+                $ref: "#/components/schemas/PatientIdentifierModel"
             permissions:
               $ref: "#/components/schemas/EMISPermissionsModel"
 
     EMISPermissionsModel:
       required:
         - appointmentsEnabled
-          demographicsUpdateEnabled
-          epsEnabled
-          medicalRecordEnabled
-          onlineTriageEnabled
-          practicePatientCommunicationEnabled
-          prescribingEnabled
-          recordSharingEnabled
-          recordViewAuditEnabled
-          medicalRecord
+        - demographicsUpdateEnabled
+        - epsEnabled
+        - medicalRecordEnabled
+        - onlineTriageEnabled
+        - practicePatientCommunicationEnabled
+        - prescribingEnabled
+        - recordSharingEnabled
+        - recordViewAuditEnabled
+        - medicalRecord
       type: object
       properties:
         appointmentsEnabled:
@@ -316,13 +347,13 @@ components:
     EMISMedicalRecordModel:
       required:
         - recordAccessScheme
-          allergiesEnabled
-          consultationsEnabled
-          immunisationsEnabled
-          documentsEnabled
-          medicationEnabled
-          problemsEnabled
-          testResultsEnabled
+        - allergiesEnabled
+        - consultationsEnabled
+        - immunisationsEnabled
+        - documentsEnabled
+        - medicationEnabled
+        - problemsEnabled
+        - testResultsEnabled
       type: object
       properties:
         recordAccessScheme:
@@ -349,24 +380,33 @@ components:
         testResultsEnabled:
           type: boolean
 
-    TPPPatientModel:
+    TPPPersonModel:
       allOf:
         - $ref: "#/components/schemas/DemographicsModel"
         - required:
+            - patientId
+            - patientIdentifiers
             - permissions
           type: object
           properties:
+            patientId:
+              type: string
+              nullable: true
+            patientIdentifiers:
+              type: array
+              items:
+                $ref: "#/components/schemas/PatientIdentifierModel"
             permissions:
               type: array
               items:
-                $ref: "#/components/schemas/TPPServiceAccess"
+                $ref: "#/components/schemas/TPPPermissionsModel"
 
-    TPPServiceAccess:
+    TPPPermissionsModel:
       required:
         - description
-          serviceIdentifier
-          status
-          statusDescription
+        - serviceIdentifier
+        - status
+        - statusDescription
       type: object
       properties:
         description:

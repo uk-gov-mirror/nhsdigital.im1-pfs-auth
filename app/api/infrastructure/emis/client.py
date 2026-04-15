@@ -10,12 +10,11 @@ from app.api.domain.exception import (
     InvalidValueError,
     NotFoundError,
 )
-from app.api.domain.forward_response_model import Demographics
 from app.api.infrastructure.emis.models import (
+    EffectiveServices,
     Identifier,
     MedicalRecordPermissions,
     Patient,
-    Permissions,
     SessionRequestData,
     SessionRequestHeaders,
     SessionResponse,
@@ -96,16 +95,45 @@ class EmisClient(BaseClient):
         Returns:
             SessionResponse: Homogenised response with other clients
         """
+        # UserPatientLinks relating the user to their patient details
+        user_self_links = [
+            patient_link
+            for patient_link in response.get("UserPatientLinks", [])
+            if patient_link.get("AssociationType") == "Self"
+        ]
+
+        # UserPatientLinks relating the user to patients they can act on behalf of
+        user_patient_links = [
+            patient_link
+            for patient_link in response.get("UserPatientLinks", [])
+            if patient_link.get("AssociationType") == "Proxy"
+        ]
+
         return SessionResponse(
             sessionId=response.get("SessionId"),
             endUserSessionId=response.get("EndUserSessionId"),
             supplier=self.supplier,
-            proxy=Demographics(
+            odsCode=self.request.patient_ods_code,
+            user=Patient(
                 firstName=response.get("FirstName"),
                 surname=response.get("Surname"),
                 title=response.get("Title"),
+                dateOfBirth=user_self_links[0].get("DateOfBirth")
+                if user_self_links
+                else None,
+                userPatientLinkToken=user_self_links[0].get("UserPatientLinkToken")
+                if user_self_links
+                else None,
+                patientIdentifiers=self._parse_identifiers(
+                    response.get("UserPatientIdentifiers", [])
+                ),
+                permissions=self._parse_permissions(
+                    user_self_links[0].get("EffectiveServices", {})
+                    if user_self_links
+                    else {}
+                ),
             ),
-            patients=self._parse_patients(response),
+            patients=self._parse_patients(user_patient_links),
         )
 
     def _mock_response(self) -> dict:
@@ -117,17 +145,15 @@ class EmisClient(BaseClient):
         with Path((BASE_DIR) / "data" / "mocked_response.json").open("r") as f:
             return load(f)
 
-    def _parse_patients(self, data: dict) -> list[Patient]:
+    def _parse_patients(self, patient_links: list) -> list[Patient]:
         """Parsing raw data from Client into structual model.
 
         Args:
-            data (dict): Raw data containing information about multiple patients
+            patient_links (dict): Raw data containing information about patients
 
         Returns:
-            list[Patient]: Parsed information about multiple patients
+            list[Patient]: Parsed information about patients
         """
-        # Extra Patient data
-        patient_links = data.get("UserPatientLinks", [])
         parsed_patients = []
         for patient in patient_links:
             raw_permissions = patient.get("EffectiveServices", {})
@@ -136,13 +162,18 @@ class EmisClient(BaseClient):
                     firstName=patient.get("FirstName"),
                     surname=patient.get("Surname"),
                     title=patient.get("Title"),
+                    dateOfBirth=patient.get("DateOfBirth"),
+                    userPatientLinkToken=patient.get("UserPatientLinkToken"),
+                    patientIdentifiers=self._parse_identifiers(
+                        patient.get("PatientIdentifiers", [])
+                    ),
                     permissions=self._parse_permissions(raw_permissions),
                 )
             )
         return parsed_patients
 
-    def _parse_permissions(self, raw_permissions: dict) -> Permissions:
-        return Permissions(
+    def _parse_permissions(self, raw_permissions: dict) -> EffectiveServices:
+        return EffectiveServices(
             appointmentsEnabled=raw_permissions.get("AppointmentsEnabled"),
             demographicsUpdateEnabled=raw_permissions.get("DemographicsUpdateEnabled"),
             epsEnabled=raw_permissions.get("EpsEnabled"),
@@ -181,3 +212,12 @@ class EmisClient(BaseClient):
                 ),
             ),
         )
+
+    def _parse_identifiers(self, raw_identifiers: list) -> list[Identifier]:
+        return [
+            Identifier(
+                value=identifier.get("IdentifierValue"),
+                type=identifier.get("IdentifierType"),
+            )
+            for identifier in raw_identifiers
+        ]
