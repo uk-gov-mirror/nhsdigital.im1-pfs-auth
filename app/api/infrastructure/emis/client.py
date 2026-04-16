@@ -146,10 +146,10 @@ class EmisClient(BaseClient):
             return load(f)
 
     def _parse_patients(self, patient_links: list) -> list[Person]:
-        """Parsing raw data from Client into structual model.
+        """Parsing raw data from Client into structural model.
 
         Args:
-            patient_links (dict): Raw data containing information about patients
+            patient_links (list[dict]): Raw data containing information about patients
 
         Returns:
             list[Person]: Parsed information about patients
