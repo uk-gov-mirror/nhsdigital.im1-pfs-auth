@@ -80,10 +80,10 @@ The proxygen CLI is a dedicated command-line interface tool designed to streamli
 
 ## Secrets
 
-Secrets used for machine access are stored in Validated Relationships Service's (VRS) AWS Prod Secrets Manager with the prefix `im1-pfs-auth/proxygen/<secret>`. As well the private key is available in GitHub Secrets under the name `PROXYGEN_PRIVATE_KEY`.
+Secrets used for machine access are stored in Validated Relationships Service's (VRS) AWS Prod Secrets Manager with the prefix `im1-pfs-auth/proxygen/<secret>`. As well the private key is available in GitHub Secrets under the name `NEW_PROXYGEN_PRIVATE_KEY`.
 Secrets used for machine access are stored in Validated Relationships Service's (VRS) AWS Prod Secrets Manager with the prefix `im1-pfs-auth/proxygen/<secret>`.
 
 ### Secrets in GitHub
 
 As well secrets are held in GitHub Secrets for the project. The secrets are used to authenticate the workflows to deploy the API to the NHS API Platform. The secrets are:
-the private key is available in GitHub Secrets under the names `PROXYGEN_CLIENT_ID`, `PROXYGEN_KEY_ID`, and `PROXYGEN_PRIVATE_KEY`.
+the private key is available in GitHub Secrets under the names `NEW_PROXYGEN_CLIENT_ID`, `NEW_PROXYGEN_KEY_ID`, and `NEW_PROXYGEN_PRIVATE_KEY`.

@@ -37,13 +37,13 @@ on:
         value: ${{ jobs.deploy-environment.outputs.proxygen_url_path }}
 
     secrets:
-      PROXYGEN_CLIENT_ID:
+      NEW_PROXYGEN_CLIENT_ID:
         required: true
         description: "Client ID for Proxygen CLI"
-      PROXYGEN_KEY_ID:
+      NEW_PROXYGEN_KEY_ID:
         required: true
         description: "Key ID for Proxygen CLI"
-      PROXYGEN_PRIVATE_KEY:
+      NEW_PROXYGEN_PRIVATE_KEY:
         required: true
         description: "Private key for Proxygen CLI"
 
@@ -86,9 +86,9 @@ jobs:
       - name: Setup proxygen
         uses: ./.github/actions/setup-proxygen
         with:
-          PROXYGEN_CLIENT_ID: ${{ secrets.PROXYGEN_CLIENT_ID }}
-          PROXYGEN_KEY_ID: ${{ secrets.PROXYGEN_KEY_ID }}
-          PROXYGEN_PRIVATE_KEY: ${{ secrets.PROXYGEN_PRIVATE_KEY }}
+          NEW_PROXYGEN_CLIENT_ID: ${{ secrets.NEW_PROXYGEN_CLIENT_ID }}
+          NEW_PROXYGEN_KEY_ID: ${{ secrets.NEW_PROXYGEN_KEY_ID }}
+          NEW_PROXYGEN_PRIVATE_KEY: ${{ secrets.NEW_PROXYGEN_PRIVATE_KEY }}
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@e468171a9de216ec08956ac3ada2f0791b6bd435 # v3.11.1
       - name: "Build ${{inputs.type_of_deployment}} container"
@@ -127,9 +127,9 @@ jobs:
       - name: Setup proxygen
         uses: ./.github/actions/setup-proxygen
         with:
-          PROXYGEN_CLIENT_ID: ${{ secrets.PROXYGEN_CLIENT_ID }}
-          PROXYGEN_KEY_ID: ${{ secrets.PROXYGEN_KEY_ID }}
-          PROXYGEN_PRIVATE_KEY: ${{ secrets.PROXYGEN_PRIVATE_KEY }}
+          NEW_PROXYGEN_CLIENT_ID: ${{ secrets.NEW_PROXYGEN_CLIENT_ID }}
+          NEW_PROXYGEN_KEY_ID: ${{ secrets.NEW_PROXYGEN_KEY_ID }}
+          NEW_PROXYGEN_PRIVATE_KEY: ${{ secrets.NEW_PROXYGEN_PRIVATE_KEY }}
       - name: Deploy environment
         run: make deploy-ci
         env:

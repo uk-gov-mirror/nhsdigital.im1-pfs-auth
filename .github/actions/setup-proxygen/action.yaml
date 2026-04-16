@@ -2,13 +2,13 @@ name: "Setup Proxygen CLI"
 description: "Setup Proxygen CLI for the project"
 
 inputs:
-  PROXYGEN_CLIENT_ID:
+  NEW_PROXYGEN_CLIENT_ID:
     description: "Client ID for Proxygen CLI"
     required: true
-  PROXYGEN_KEY_ID:
+  NEW_PROXYGEN_KEY_ID:
     description: "Key ID for Proxygen CLI"
     required: true
-  PROXYGEN_PRIVATE_KEY:
+  NEW_PROXYGEN_PRIVATE_KEY:
     description: "Private key for Proxygen CLI"
     required: true
 
