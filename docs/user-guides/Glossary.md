@@ -28,7 +28,7 @@ In this project, Apigee proxies are deployed via the **Proxygen CLI** using the 
 
 The Proxygen service is accessible at:
 
-```
+```text
 https://proxygen.prod.api.platform.nhs.uk
 ```
 
@@ -47,7 +47,7 @@ The **Proxygen CLI** (`proxygen-cli`) is a Python command-line tool provided by 
 
 The CLI authenticates against the NHS identity service at:
 
-```
+```text
 https://identity.prod.api.platform.nhs.uk/realms/api-producers
 ```
 
@@ -107,7 +107,7 @@ An **ODS (Organisation Data Service) code** is a unique identifier assigned to N
 
 **AWS ECR** is the container image registry used to store the Docker images for `im1-pfs-auth`. The NHS-managed registry is at:
 
-```
+```text
 958002497996.dkr.ecr.eu-west-2.amazonaws.com/im1-pfs-auth
 ```
 
