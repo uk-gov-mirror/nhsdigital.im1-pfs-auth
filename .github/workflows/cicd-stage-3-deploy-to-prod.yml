@@ -22,9 +22,9 @@ jobs:
       - name: Setup proxygen
         uses: ./.github/actions/setup-proxygen
         with:
-          NEW_PROXYGEN_CLIENT_ID: ${{ secrets.NEW_PROXYGEN_CLIENT_ID }}
-          NEW_PROXYGEN_KEY_ID: ${{ secrets.NEW_PROXYGEN_KEY_ID }}
-          NEW_PROXYGEN_PRIVATE_KEY: ${{ secrets.NEW_PROXYGEN_PRIVATE_KEY }}
+          PTL_PROXYGEN_CLIENT_ID: ${{ secrets.PTL_PROXYGEN_CLIENT_ID }}
+          PTL_PROXYGEN_KEY_ID: ${{ secrets.PTL_PROXYGEN_KEY_ID }}
+          PTL_PROXYGEN_PRIVATE_KEY: ${{ secrets.PTL_PROXYGEN_PRIVATE_KEY }}
       - name: Deploy Specification to Production
         run: make deploy-spec-prod-ci
         env:

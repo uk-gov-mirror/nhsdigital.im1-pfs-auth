@@ -51,7 +51,7 @@ The CLI authenticates against the NHS identity service at:
 https://identity.prod.api.platform.nhs.uk/realms/api-producers
 ```
 
-This is a **Keycloak** identity provider used for machine-to-machine authentication for API producer teams. Authentication requires three credentials: a `client_id`, a `key_id`, and a `private_key` (PEM file). In CI/CD these are stored as GitHub secrets (`NEW_PROXYGEN_CLIENT_ID`, `NEW_PROXYGEN_KEY_ID`, `NEW_PROXYGEN_PRIVATE_KEY`) and also in the VRS AWS Prod Secrets Manager under the prefix `im1-pfs-auth/proxygen/<secret>`.
+This is a **Keycloak** identity provider used for machine-to-machine authentication for API producer teams. Authentication requires three credentials: a `client_id`, a `key_id`, and a `private_key` (PEM file). In CI/CD these are stored as GitHub secrets (`PTL_PROXYGEN_CLIENT_ID`, `PTL_PROXYGEN_KEY_ID`, `PTL_PROXYGEN_PRIVATE_KEY`) and also in the VRS AWS Prod Secrets Manager under the prefix `im1-pfs-auth/proxygen/<secret>`.
 
 See the [Proxygen CLI guide](./Proxygen_CLI.md) for installation and configuration instructions.
 

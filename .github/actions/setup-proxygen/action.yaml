@@ -2,13 +2,13 @@ name: "Setup Proxygen CLI"
 description: "Setup Proxygen CLI for the project"
 
 inputs:
-  NEW_PROXYGEN_CLIENT_ID:
+  PTL_PROXYGEN_CLIENT_ID:
     description: "Client ID for Proxygen CLI"
     required: true
-  NEW_PROXYGEN_KEY_ID:
+  PTL_PROXYGEN_KEY_ID:
     description: "Key ID for Proxygen CLI"
     required: true
-  NEW_PROXYGEN_PRIVATE_KEY:
+  PTL_PROXYGEN_PRIVATE_KEY:
     description: "Private key for Proxygen CLI"
     required: true
 
@@ -29,15 +29,15 @@ runs:
 
     - name: Create Proxygen private key file
       run: |
-        echo "${{ inputs.NEW_PROXYGEN_PRIVATE_KEY }}" > ~/.proxygen/private_key.pem
+        echo "${{ inputs.PTL_PROXYGEN_PRIVATE_KEY }}" > ~/.proxygen/private_key.pem
         chmod 600 ~/.proxygen/private_key.pem
       shell: bash
 
     - name: Update Proxygen Credentials
       run: |
-        sed -i "s|NEW_CLIENT_ID_TO_BE_REPLACED|${{ inputs.NEW_PROXYGEN_CLIENT_ID }}|" ~/.proxygen/credentials.yaml
-        sed -i "s|NEW_KEY_ID_TO_BE_REPLACED|${{ inputs.NEW_PROXYGEN_KEY_ID }}|" ~/.proxygen/credentials.yaml
-        sed -i "s|NEW_PRIVATE_KEY_PATH_TO_BE_REPLACED|private_key.pem|" ~/.proxygen/credentials.yaml
+        sed -i "s|PTL_CLIENT_ID_TO_BE_REPLACED|${{ inputs.PTL_PROXYGEN_CLIENT_ID }}|" ~/.proxygen/credentials.yaml
+        sed -i "s|PTL_KEY_ID_TO_BE_REPLACED|${{ inputs.PTL_PROXYGEN_KEY_ID }}|" ~/.proxygen/credentials.yaml
+        sed -i "s|PTL_PRIVATE_KEY_PATH_TO_BE_REPLACED|private_key.pem|" ~/.proxygen/credentials.yaml
       shell: bash
 
     - name: Copy Proxygen settings
