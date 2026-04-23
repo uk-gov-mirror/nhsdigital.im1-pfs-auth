@@ -12,8 +12,7 @@ YYYY-mm-dd-Prod-<<api-name>>
 This enforces a 12-month expiry for all public keys (The date should be expiry date of the Public Key)
 ```
 
-[These docs](https://digital.nhs.uk/developer/guides-and-documentation/security-and-authorisation/application-restricted-restful-apis-signed-jwt-authentication#step-2-generate-a-key-pair) walkthrough how to generate the key pair.
-
+[These docs](https://digital.nhs.uk/developer/guides-and-documentation/security-and-authorisation/application-restricted-restful-apis-signed-jwt-authentication#step-2-generate-a-key-pair) walkthrough how to generate the key pair. Once you've created your JWKS file called YOUR_KID.json you can move onto creating the proxygen deployment
 
 ## Creating the proxygen deployment
 
