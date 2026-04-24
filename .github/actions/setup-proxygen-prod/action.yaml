@@ -1,0 +1,45 @@
+name: "Setup Proxygen CLI (Prod)"
+description: "Setup Proxygen CLI for production deployments"
+
+inputs:
+  PROD_PROXYGEN_CLIENT_ID:
+    description: "Client ID for Proxygen CLI (Prod)"
+    required: true
+  PROD_PROXYGEN_KEY_ID:
+    description: "Key ID for Proxygen CLI (Prod)"
+    required: true
+  PROD_PROXYGEN_PRIVATE_KEY:
+    description: "Private key for Proxygen CLI (Prod)"
+    required: true
+
+runs:
+  using: "composite"
+  steps:
+    - name: Install Proxygen CLI
+      run: pip install proxygen-cli
+      shell: bash
+
+    - name: Create Proxygen configuration directory
+      run: mkdir -p ~/.proxygen
+      shell: bash
+
+    - name: Copy Proxygen credentials
+      run: cp proxygen/credentials-prod.yaml ~/.proxygen/credentials.yaml
+      shell: bash
+
+    - name: Create Proxygen private key file
+      run: |
+        echo "${{ inputs.PROD_PROXYGEN_PRIVATE_KEY }}" > ~/.proxygen/private_key.pem
+        chmod 600 ~/.proxygen/private_key.pem
+      shell: bash
+
+    - name: Update Proxygen Credentials
+      run: |
+        sed -i "s|PROD_CLIENT_ID_TO_BE_REPLACED|${{ inputs.PROD_PROXYGEN_CLIENT_ID }}|" ~/.proxygen/credentials.yaml
+        sed -i "s|PROD_KEY_ID_TO_BE_REPLACED|${{ inputs.PROD_PROXYGEN_KEY_ID }}|" ~/.proxygen/credentials.yaml
+        sed -i "s|PROD_PRIVATE_KEY_PATH_TO_BE_REPLACED|private_key.pem|" ~/.proxygen/credentials.yaml
+      shell: bash
+
+    - name: Copy Proxygen settings
+      run: cp proxygen/settings-prod.yaml ~/.proxygen/settings.yaml
+      shell: bash

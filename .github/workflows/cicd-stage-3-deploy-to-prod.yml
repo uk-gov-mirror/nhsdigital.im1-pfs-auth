@@ -20,11 +20,11 @@ jobs:
       - name: Setup Python Dependencies
         uses: ./.github/actions/setup-python-dependencies
       - name: Setup proxygen
-        uses: ./.github/actions/setup-proxygen
+        uses: ./.github/actions/setup-proxygen-prod
         with:
-          PTL_PROXYGEN_CLIENT_ID: ${{ secrets.PTL_PROXYGEN_CLIENT_ID }}
-          PTL_PROXYGEN_KEY_ID: ${{ secrets.PTL_PROXYGEN_KEY_ID }}
-          PTL_PROXYGEN_PRIVATE_KEY: ${{ secrets.PTL_PROXYGEN_PRIVATE_KEY }}
+          PROD_PROXYGEN_CLIENT_ID: ${{ secrets.PROD_PROXYGEN_CLIENT_ID }}
+          PROD_PROXYGEN_KEY_ID: ${{ secrets.PROD_PROXYGEN_KEY_ID }}
+          PROD_PROXYGEN_PRIVATE_KEY: ${{ secrets.PROD_PROXYGEN_PRIVATE_KEY }}
       - name: Deploy Specification to Production
         run: make deploy-spec-prod-ci
         env:
