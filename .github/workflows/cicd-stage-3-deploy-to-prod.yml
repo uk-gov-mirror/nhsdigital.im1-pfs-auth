@@ -22,7 +22,7 @@ jobs:
       - name: Setup proxygen
         uses: ./.github/actions/setup-proxygen-prod
         with:
-          ENVIRONMENT: prod
+          ENVIRONMENT: "prod"
           PROXYGEN_CLIENT_ID: ${{ secrets.PROXYGEN_CLIENT_ID }}
           PROXYGEN_KEY_ID: ${{ secrets.PROXYGEN_KEY_ID }}
           PROXYGEN_PRIVATE_KEY: ${{ secrets.PROXYGEN_PRIVATE_KEY }}
