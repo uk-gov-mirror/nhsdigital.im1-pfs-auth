@@ -24,7 +24,7 @@ runs:
       shell: bash
 
     - name: Copy Proxygen credentials
-      run: cp proxygen/credentials.yaml ~/.proxygen/credentials.yaml
+      run: cp proxygen/credentials-ptl.yaml ~/.proxygen/credentials.yaml
       shell: bash
 
     - name: Create Proxygen private key file
@@ -41,5 +41,5 @@ runs:
       shell: bash
 
     - name: Copy Proxygen settings
-      run: cp proxygen/settings.yaml ~/.proxygen/settings.yaml
+      run: cp proxygen/settings-ptl.yaml ~/.proxygen/settings.yaml
       shell: bash
