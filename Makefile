@@ -56,6 +56,7 @@ deploy-ci:
 
 # Deploy spec to uat
 deploy-spec-uat:
+	cp -f specification/x-nhsd-apim/x-nhsd-apim-int.yaml specification/x-nhsd-apim/x-nhsd-apim.generated.yaml
 	proxygen spec publish --uat $(PROXYGEN_ARGS) specification/im1-pfs-auth-api.yaml
 
 # Deploy spec to prod
