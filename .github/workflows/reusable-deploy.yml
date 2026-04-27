@@ -86,7 +86,6 @@ jobs:
       - name: Setup proxygen
         uses: ./.github/actions/setup-proxygen
         with:
-          ENVIRONMENT: ${{ inputs.environment }}
           PROXYGEN_CLIENT_ID: ${{ secrets.PROXYGEN_CLIENT_ID }}
           PROXYGEN_KEY_ID: ${{ secrets.PROXYGEN_KEY_ID }}
           PROXYGEN_PRIVATE_KEY: ${{ secrets.PROXYGEN_PRIVATE_KEY }}
@@ -128,7 +127,6 @@ jobs:
       - name: Setup proxygen
         uses: ./.github/actions/setup-proxygen
         with:
-          ENVIRONMENT: ${{ inputs.environment }}
           PROXYGEN_CLIENT_ID: ${{ secrets.PROXYGEN_CLIENT_ID }}
           PROXYGEN_KEY_ID: ${{ secrets.PROXYGEN_KEY_ID }}
           PROXYGEN_PRIVATE_KEY: ${{ secrets.PROXYGEN_PRIVATE_KEY }}
